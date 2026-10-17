@@ -1,5 +1,7 @@
 # TaskAnalyzer — SDD (Spec-Driven Development)
 
+![status](https://img.shields.io/badge/pytest-27%20passed-brightgreen) ![python](https://img.shields.io/badge/python-3.11%2B-blue)
+
 Módulo de análise de tarefas e métricas de produtividade, desenvolvido seguindo o paradigma **Spec-Driven Development (SDD)**: a especificação técnica é o contrato executável que guia a geração de código assistida por IA. A IA é a executora; o desenvolvedor é o arquiteto e o homologador.
 
 ## Sobre o projeto
@@ -13,6 +15,38 @@ O TaskAnalyzer analisa um conjunto de tarefas executadas por um time ou indivíd
 
 A especificação completa do contrato de negócio e dos cenários de aceite está em [`specs/task_analyzer_spec.md`](specs/task_analyzer_spec.md). As regras de governança para agentes de IA estão em [`CONTEXT_RULES.md`](CONTEXT_RULES.md).
 
+## Como executar
+
+```bash
+python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+python -m pytest -v
+```
+
+Uso do módulo (Python 3.11+, somente biblioteca padrão):
+
+```python
+from datetime import datetime, timezone
+from src.task_analyzer import analyze_tasks, TaskValidationError
+
+tarefas = [{
+    "id_tarefa": 1, "prioridade": "alta", "status": "concluída",
+    "data_criacao": datetime(2026, 1, 1, 8, tzinfo=timezone.utc),
+    "data_inicio": datetime(2026, 1, 1, 9, tzinfo=timezone.utc),
+    "data_conclusao": datetime(2026, 1, 1, 10, tzinfo=timezone.utc),
+    "prazo": datetime(2026, 1, 1, 12, tzinfo=timezone.utc),
+}]
+print(analyze_tasks(tarefas))
+```
+
+### Decisões de interpretação do contrato
+
+- `quantidade_tarefas` = tarefas **concluídas e válidas** efetivamente consideradas no cálculo.
+- Registro concluído com datas ausentes ou inconsistentes (`data_conclusao` < `data_inicio` ou < `data_criacao`) é descartado com log `WARNING` (nota de reconciliação, item a).
+- Lote sem nenhuma tarefa concluída válida (inclui lote vazio) dispara `TaskValidationError` (item b / Cenário 2).
+- Prioridade sem tarefas concluídas retorna `0.0 / 0.0 / 0` sem exceção.
+- Campo ausente, tipo, enum ou `id_tarefa <= 0` inválidos disparam `TaskValidationError`. `datetime` sem fuso é tratado como UTC.
+
 ## Estrutura do repositório
 
 ```
@@ -22,9 +56,9 @@ sdd-task-analyzer/
 ├── specs/
 │   └── task_analyzer_spec.md   # Especificação SDD (contrato de negócio + cenários de aceite)
 ├── tests/
-│   └── test_harness.py    # Testes automatizados (pytest) — implementados na Fase 2
+│   └── test_harness.py    # Testes automatizados (pytest) — Cenários 1 e 2 + casos de borda
 ├── src/
-│   └── task_analyzer.py   # Código gerado via IA e homologado — implementado na Fase 2
+│   └── task_analyzer.py   # analyze_tasks e TaskValidationError (gerado via IA e homologado)
 ├── .gitignore
 └── requirements.txt
 ```
@@ -34,10 +68,10 @@ sdd-task-analyzer/
 | Fase | Descrição | Status |
 |---|---|---|
 | 1 — Especificação e Governança (SDD & AI Harness) | Contrato executável, cenários de aceite, CONTEXT_RULES, estrutura do repositório | ✅ Concluída |
-| 2 — Implementação com IA e Versionamento | Geração de código via IA, test harness, Pull Requests no GitHub | ⬜ Próxima etapa |
+| 2 — Implementação com IA e Versionamento | Geração de código via IA, test harness, Pull Requests no GitHub | ✅ Concluída |
 | 3 — DevOps, Testes e Revisão Ética | CI/CD, Docker, testes automatizados, revisão de ética/segurança | ⬜ Pendente |
 
-## Como este repositório deve ser usado na Fase 2
+## Como este repositório foi usado na Fase 2
 
 1. Ler integralmente `specs/task_analyzer_spec.md` antes de solicitar geração de código a um assistente de IA.
 2. Fornecer o `CONTEXT_RULES.md` como contexto persistente para o agente de IA.
