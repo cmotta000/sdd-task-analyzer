@@ -1,0 +1,4 @@
+# Conforme CONTEXT_RULES.md (secao 2): nao usar bibliotecas externas nao autorizadas.
+# Apenas biblioteca padrao do Python na implementacao (src/).
+# pytest sera usado somente para rodar os testes (tests/), nao e dependencia do modulo em si.
+pytest>=8.0
