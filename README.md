@@ -23,6 +23,18 @@ pip install -r requirements.txt
 python -m pytest -v
 ```
 
+### Executar com Docker (Fase 3)
+
+```bash
+docker compose run --rm tests
+```
+
+Ou, sem o Compose: `docker build -t sdd-task-analyzer . && docker run --rm sdd-task-analyzer`. A imagem usa `python:3.11-slim` e o `CMD` executa `pytest tests/test_harness.py -v`.
+
+### Integração contínua
+
+O workflow `.github/workflows/ci.yml` roda em `push` e `pull_request` nas branches `main` e `develop` (ubuntu-latest, Python 3.11): instala `requirements.txt` e executa `pytest tests/test_harness.py -v`.
+
 Uso do módulo (Python 3.11+, somente biblioteca padrão):
 
 ```python
@@ -53,6 +65,12 @@ print(analyze_tasks(tarefas))
 sdd-task-analyzer/
 ├── README.md              # Este arquivo
 ├── CONTEXT_RULES.md       # Regras persistentes de governança para agentes de IA
+├── .github/
+│   └── workflows/
+│       └── ci.yml         # Pipeline CI (GitHub Actions)
+├── Dockerfile             # Imagem python:3.11-slim que executa o pytest
+├── docker-compose.yml     # Serviço "tests" (docker compose run --rm tests)
+├── .dockerignore
 ├── specs/
 │   └── task_analyzer_spec.md   # Especificação SDD (contrato de negócio + cenários de aceite)
 ├── tests/
@@ -69,7 +87,7 @@ sdd-task-analyzer/
 |---|---|---|
 | 1 — Especificação e Governança (SDD & AI Harness) | Contrato executável, cenários de aceite, CONTEXT_RULES, estrutura do repositório | ✅ Concluída |
 | 2 — Implementação com IA e Versionamento | Geração de código via IA, test harness, Pull Requests no GitHub | ✅ Concluída |
-| 3 — DevOps, Testes e Revisão Ética | CI/CD, Docker, testes automatizados, revisão de ética/segurança | ⬜ Pendente |
+| 3 — DevOps, Testes e Revisão Ética | CI/CD (GitHub Actions), Docker, testes automatizados, revisão de ética/segurança | ✅ Concluída |
 
 ## Como este repositório foi usado na Fase 2
 

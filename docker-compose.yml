@@ -1,0 +1,5 @@
+services:
+  tests:
+    build: .
+    image: sdd-task-analyzer:latest
+    container_name: sdd-task-analyzer-tests
